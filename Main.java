@@ -1,6 +1,9 @@
 import java.util.Scanner;
+import java.util.ArrayList;
 public class Main {
     public static Scanner scanner = new Scanner(System.in);
+    public static ArrayList <SmartDevice> devices = new ArrayList<>();
+
     public static void main (String[] args) {
     runMenu();
     }
