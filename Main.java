@@ -51,8 +51,16 @@ public class Main {
         System.out.println("uc");
     }
     public static void listDevices() {
-        System.out.println("uc");
+        if (devices.isEmpty()) {
+            System.out.println("No Devices Found.");
+        }else{
+            for (SmartDevice device : devices ) {
+                System.out.println(device.getClass().getSimpleName()+
+                        "(ID: "+ device.getDeviceId() + ") - Status: "+ (device.isOn() ? "ON" : "OFF"));
+            }
+        }
     }
+
     public static void togleDevice() {
         System.out.println("uc");
     }
