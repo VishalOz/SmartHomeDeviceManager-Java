@@ -1,9 +1,9 @@
 import java.util.Scanner;
-import java.util.ArrayList;
+import java.util. *;
 public class Main {
     public static Scanner scanner = new Scanner(System.in);
     public static ArrayList <SmartDevice> devices = new ArrayList<>();
-
+    public  static Map<String, Room> rooms = new HashMap<>();
     public static void main (String[] args) {
     runMenu();
     }
@@ -32,7 +32,7 @@ public class Main {
             switch (choice) {
                 case 1 -> addDevice();
                 case 2 -> listDevices();
-                case 3 -> togleDevice();
+                case 3 -> toggleDevice();
                 case 4 -> showStatus();
                 case 5 -> scheduleDevice();
                 case 6 -> showEnergyUsage();
@@ -48,35 +48,106 @@ public class Main {
     }
 
     public static void addDevice() {
-        System.out.println("uc");
+        System.out.println("Enter the Device Type (Light/AC): ");
+        String type =  scanner.nextLine().toLowerCase();
+        System.out.println("Enter the Device ID: ");
+        String id = scanner.nextLine();
+
+        switch (type) {
+            case "light" -> {
+                System.out.print("Enter brightness (0-100): ");
+                int brightness = scanner.nextInt();
+                scanner.nextLine();
+                devices.add(new SmartLight(id, brightness));
+                System.out.println("✅ SmartLight '" + id + "' added.");
+            }
+            case "ac" -> {
+                System.out.print("Enter target temperature: ");
+                int temp = scanner.nextInt();
+                scanner.nextLine();
+                devices.add(new SmartAC(id, temp));
+                System.out.println("✅ SmartAC '" + id + "' added.");
+            }
+            default -> System.out.println("❌ Unknown device type.");
+        }
     }
-    public static void listDevices() {
+
+    static void listDevices() {
         if (devices.isEmpty()) {
-            System.out.println("No Devices Found.");
-        }else{
-            for (SmartDevice device : devices ) {
-                System.out.println(device.getClass().getSimpleName()+
-                        "(ID: "+ device.getDeviceId() + ") - Status: "+ (device.isOn() ? "ON" : "OFF"));
+            System.out.println("No devices found.");
+            return;
+        }
+        System.out.println("-- Registered Devices --");
+        for (SmartDevice d : devices) {
+            System.out.println(d.getClass().getSimpleName() + " (ID: " + d.getDeviceId() + ") - Status: " + (d.isOn() ? "ON" : "OFF"));
+        }
+    }
+
+    static void toggleDevice() {
+        System.out.print("Enter Device ID: ");
+        String id = scanner.nextLine();
+        SmartDevice device = findDeviceById(id);
+        if (device == null) return;
+
+        System.out.print("Turn ON or OFF? (on/off): ");
+        String action = scanner.nextLine().toLowerCase();
+        if (action.equals("on")) device.turnOn();
+        else if (action.equals("off")) device.turnOff();
+        else System.out.println("❌ Invalid action.");
+    }
+
+    static void showStatuses() {
+        for (SmartDevice d : devices) {
+            d.showStatus();
+        }
+    }
+
+    static void scheduleDevice() {
+        System.out.print("Enter Device ID: ");
+        String id = scanner.nextLine();
+        SmartDevice device = findDeviceById(id);
+        if (device instanceof Schedulable schedulable) {
+            System.out.print("Enter schedule time (e.g., 07:00 PM): ");
+            String time = scanner.nextLine();
+            schedulable.schedule(time);
+        } else {
+            System.out.println("❌ This device doesn't support scheduling.");
+        }
+    }
+
+    static void showEnergyUsage() {
+        for (SmartDevice d : devices) {
+            if (d instanceof EnergyMonitorable em) {
+                System.out.println("Device " + d.getDeviceId() + ": Estimated Energy Usage: " + em.getEnergyUsage() + " kWh");
             }
         }
     }
 
-    public static void togleDevice() {
-        System.out.println("uc");
+    static void groupDevicesToRoom() {
+        System.out.print("Enter Room Name: ");
+        String roomName = scanner.nextLine();
+        System.out.print("Enter Device ID to add: ");
+        String id = scanner.nextLine();
+        SmartDevice device = findDeviceById(id);
+        if (device == null) return;
+
+        Room room = rooms.computeIfAbsent(roomName, Room::new);
+        room.addDevice(device);
     }
-    public static void showStatus() {
-        System.out.println("uc");
+
+    static void turnOnRoomDevices() {
+        System.out.print("Enter Room Name: ");
+        String name = scanner.nextLine();
+        Room room = rooms.get(name);
+        if (room != null) room.turnAllOn();
+        else System.out.println("❌ Room not found.");
     }
-    public static void scheduleDevice() {
-        System.out.println("uc");
-    }
-    public static void showEnergyUsage() {
-        System.out.println("uc");
-    }
-    public static void groupDevicesToRoom() {
-        System.out.println("uc");
-    }
-    public static void turnOnRoomDevices() {
-        System.out.println("uc");
+
+    static SmartDevice findDeviceById(String id) {
+        for (SmartDevice d : devices) {
+            if (d.getDeviceId().equalsIgnoreCase(id)) return d;
+        }
+        System.out.println("❌ Device not found.");
+        return null;
     }
 }

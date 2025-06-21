@@ -1,2 +1,3 @@
-public class EnergyMonitorable {
+public interface EnergyMonitorable {
+    double getEnergyUsage(); // returns in kWh
 }
