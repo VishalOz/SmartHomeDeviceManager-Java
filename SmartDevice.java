@@ -1,4 +1,4 @@
-public class SmartDevice {
+public abstract class SmartDevice {
     protected String deviceId;
     protected boolean isOn;
 

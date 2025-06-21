@@ -1,2 +1,3 @@
-public class Schedulable {
+public interface Schedulable {
+    void schedule(String time);
 }
